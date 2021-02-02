@@ -51,37 +51,24 @@ class BoardSolver {
             return;
         }
 
-        //Moves bestMove = possibleMoves.get(0);
-        int count = 0;
-        for(Moves move : possibleMoves){
-            //System.out.println("("+move.x+","+move.y+") symbols: "+move.symbols.toString());
-            if(move.length() == -1) {
-                //b.grid[move.x][move.y] = sol;
-            } else {
-                for (Character possibleMoveOnSlot : move.symbols) {
-                    Board childBoard = new Board();
-                
-                    childBoard.grid = b.copyGrid();
+        Moves bestMove = possibleMoves.get(0);
+        if(bestMove.length() == 1){
+            char sol = (char) bestMove.symbols.iterator().next();
+            //System.out.println("("+bestMove.x+","+bestMove.y+") symbol: "+sol);
+            b.grid[bestMove.x][bestMove.y] = sol;
+        } else {
+            //System.out.println("("+bestMove.x+","+bestMove.y+") symbols: "+move.symbols.toString());
+            for (Character possibleMoveOnSlot : bestMove.symbols) {
+                Board childBoard = new Board();
+            
+                childBoard.grid = b.copyGrid();
 
-                    /* //TESTS for copy of grid
-                    char t1 = b.grid[0][0];
-                    char t2 = childBoard.grid[0][0];
-                    childBoard.grid[0][0] = '9';
-                    if(t1 != b.grid[0][0]){System.out.println("!!!! BIG ERROR !!!!"+t1+" "+t2+"-"+b.grid[0][0]);}// else {System.out.println("worked "+t1+" "+t2+"-"+b.grid[0][0]);}
-                    childBoard.grid[0][0] = t2;
-                    */
-                    count+=1;
-
-                    char sol = (char) possibleMoveOnSlot;
-                    childBoard.grid[move.x][move.y] = sol;
-                    addBoardState(childBoard); // PROBLEM: Seems same (non-matching hashcodes) board gets put into the board state queue (only finished boards?), 
-                                            // Seems childBoard object is the same object being updated each loop
-                                            // Clone bug?
-                                            // Seems to work with custom b.copyGrid() fucntion
-                }
+                char sol = (char) possibleMoveOnSlot;
+                childBoard.grid[bestMove.x][bestMove.y] = sol;
+                addBoardState(childBoard);
+                b.ToBeDeleted = true;
             }
         }
-        //System.out.println("Created "+count+" new board states to solve.");
     }
 
     public void solve(){
@@ -94,7 +81,9 @@ class BoardSolver {
             } else{
                 stepSolutions(boardStates.get(0));
                 if(!boardStates.get(0).finished){
-                    boardStates.remove(0);
+                    if(boardStates.get(0).ToBeDeleted){
+                        boardStates.remove(0);
+                    }
                 }
             }
         }
@@ -104,8 +93,8 @@ class BoardSolver {
         int t = 0;
         for (Board b : finishedBoards) {
             if(b.HowManyLeft() < 1){
-                //System.out.println("Solved board: \n");
-                //b.print();
+                System.out.println("Solved board: \n");
+                b.print();
                 t+=1;
             }
         }

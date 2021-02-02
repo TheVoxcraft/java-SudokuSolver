@@ -3,6 +3,7 @@ import java.util.Set;
 
 public class Board {
     public boolean finished = false;
+    public boolean ToBeDeleted = false;
     public char[][] grid;
     public Board(){
         grid = new char[SudokuSolver.BOARD_SIZE][SudokuSolver.BOARD_SIZE];
