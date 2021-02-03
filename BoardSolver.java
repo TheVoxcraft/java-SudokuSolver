@@ -20,6 +20,8 @@ class BoardSolver {
 
 
     public List<Moves> calcPossibles(Board b){
+        b.updateCache();
+
         ArrayList<Moves> possibleMoves = new ArrayList<>();
         for(int i = 0; i < SudokuSolver.BOARD_SIZE; i++){
             for(int j = 0; j < SudokuSolver.BOARD_SIZE; j++){
@@ -41,11 +43,12 @@ class BoardSolver {
         Collections.sort(possibleMoves);
         
         if(possibleMoves.isEmpty()){
+            /*
             if(b.HowManyLeft() != 0){
-                System.out.println("Unfinished board ("+b.HowManyLeft()+" empty)");
+                System.out.println("Unfinished board ("+b.HowManyLeft()+" empty cells)");
             } else {
                 System.out.println("Found a solution board");
-            }
+            }*/
             
             b.finished = true;
             return;
@@ -55,18 +58,22 @@ class BoardSolver {
         if(bestMove.length() == 1){
             char sol = (char) bestMove.symbols.iterator().next();
             //System.out.println("("+bestMove.x+","+bestMove.y+") symbol: "+sol);
-            b.grid[bestMove.x][bestMove.y] = sol;
+            b.setGrid(bestMove.x, bestMove.y, sol);
         } else {
-            //System.out.println("("+bestMove.x+","+bestMove.y+") symbols: "+move.symbols.toString());
+            boolean first = true;
             for (Character possibleMoveOnSlot : bestMove.symbols) {
-                Board childBoard = new Board();
-            
-                childBoard.grid = b.copyGrid();
-
                 char sol = (char) possibleMoveOnSlot;
-                childBoard.grid[bestMove.x][bestMove.y] = sol;
-                addBoardState(childBoard);
-                b.ToBeDeleted = true;
+                if(first){
+                    b.setGrid(bestMove.x, bestMove.y, sol);
+                    first = false;
+                } else {
+                    Board childBoard = new Board();
+                
+                    childBoard.setGrid(b.copyGrid());
+
+                    b.setGrid(bestMove.x, bestMove.y, sol);
+                    addBoardState(childBoard);
+                }
             }
         }
     }
@@ -80,11 +87,6 @@ class BoardSolver {
                 boardStates.remove(0);
             } else{
                 stepSolutions(boardStates.get(0));
-                if(!boardStates.get(0).finished){
-                    if(boardStates.get(0).ToBeDeleted){
-                        boardStates.remove(0);
-                    }
-                }
             }
         }
 
@@ -113,7 +115,7 @@ class BoardSolver {
 
         for(int i = 0; i < SudokuSolver.BOARD_SIZE; i++){
             for(int j = 0; j < SudokuSolver.BOARD_SIZE; j++){
-                b.grid[j][i] = text_symbols[j + (i * SudokuSolver.BOARD_SIZE)];
+                b.setGrid(j, i, text_symbols[j + (i * SudokuSolver.BOARD_SIZE)]);
             }
         }
 
