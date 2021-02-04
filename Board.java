@@ -1,37 +1,12 @@
 import java.util.*;
 import java.util.Set;
-import java.util.HashMap;
-
-class Key{
-    private final int x;
-    private final int y;
-
-    public Key(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Key)) return false;
-        Key key = (Key) o;
-        return x == key.x && y == key.y;
-    }
-
-    @Override
-    public int hashCode() {
-        return (x << 16) + y;
-        /*int result = x;
-        result = 31 * result + y;
-        return result;*/
-    }
-}
 
 public class Board {
     public boolean finished = false;
-    public boolean upToDateCache = false;
 
     private char[][] grid;
+
+    public boolean upToDateCache = false;
 
     private HashMap<Integer, char[]> CachedHorizontal = new HashMap<Integer, char[]>();
     private HashMap<Integer, char[]> CachedVertical = new HashMap<Integer, char[]>();
@@ -68,13 +43,15 @@ public class Board {
     }
 
     public void setGrid(int x, int y, char val){
-        upToDateCache = false;
         grid[x][y] = val;
+        upToDateCache = false;
+        updateAllCaches(x, y);
     }
 
     public void setGrid(char[][] other){
-        upToDateCache = false;
         grid = other;
+        upToDateCache = false;
+        regenerateAllCache();
     }
 
     public char getGrid(int x, int y){
@@ -104,7 +81,25 @@ public class Board {
         }
     }
 
-    public void updateCache(){
+    private char[] updateCachedHorizontal(int y){
+        char[] r = get_horizontal(y);
+        CachedHorizontal.put((Integer) y, r);
+        return r;
+    }
+
+    private char[] updateCachedVertical(int x){
+        char[] r = get_vertical(x);
+        CachedVertical.put((Integer) x, r);
+        return r;
+    }
+
+    private char[] updateCachedBlock(int x, int y){
+        char[] r = get_block(x, y);
+        CachedBlocks.put(new Key(x,y), r);
+        return r;
+    }
+
+    public void regenerateAllCache(){
         if(!upToDateCache){
             updateCachedHorizontal();
             updateCachedVertical();
@@ -115,12 +110,23 @@ public class Board {
         }
     }
 
+    public void updateAllCaches(int x, int y){
+        if(!upToDateCache){
+            updateCachedHorizontal(y);
+            updateCachedVertical(x);
+            updateCachedBlock(x, y);
+            upToDateCache = true;
+        } else {
+            System.out.println("Already up to date!");
+        }
+    }
+
     public char[] get_cached_vertical(int x){
         if(upToDateCache){
             return CachedVertical.get((Integer) x);
         } else{
-            System.out.println("(V) Falling back to real time calculation");
-            return get_vertical(x);
+            System.out.println("(V) Falling back to real time calculation and updating.");
+            return updateCachedVertical(x);
         }
     }
 
@@ -128,8 +134,8 @@ public class Board {
         if(upToDateCache){
             return CachedHorizontal.get((Integer) y);
         } else{
-            System.out.println("(H) Falling back to real time calculation");
-            return get_horizontal(y);
+            System.out.println("(H) Falling back to real time calculation and updating.");
+            return updateCachedHorizontal(y);
         }
     }
 
@@ -137,8 +143,8 @@ public class Board {
         if(upToDateCache){
             return CachedBlocks.get(new Key(x, y));
         } else{
-            System.out.println("(B) Falling back to real time calculation");
-            return get_block(x, y);
+            System.out.println("(B) Falling back to real time calculation and updating.");
+            return updateCachedBlock(x, y);
         }
     }
 
@@ -243,5 +249,30 @@ public class Board {
             }
         }
         return n;
+    }
+}
+
+class Key{
+    private final int x;
+    private final int y;
+
+    public Key(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Key)) return false;
+        Key key = (Key) o;
+        return x == key.x && y == key.y;
+    }
+
+    @Override
+    public int hashCode() {
+        return (x << 16) + y;
+        /*int result = x;
+        result = 31 * result + y;
+        return result;*/
     }
 }

@@ -20,8 +20,6 @@ class BoardSolver {
 
 
     public List<Moves> calcPossibles(Board b){
-        b.updateCache();
-
         ArrayList<Moves> possibleMoves = new ArrayList<>();
         for(int i = 0; i < SudokuSolver.BOARD_SIZE; i++){
             for(int j = 0; j < SudokuSolver.BOARD_SIZE; j++){
