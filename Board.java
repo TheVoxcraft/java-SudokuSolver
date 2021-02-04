@@ -4,13 +4,7 @@ import java.util.Set;
 public class Board {
     public boolean finished = false;
 
-    private char[][] grid;
-
-    public boolean upToDateCache = false;
-
-    private HashMap<Integer, char[]> CachedHorizontal = new HashMap<Integer, char[]>();
-    private HashMap<Integer, char[]> CachedVertical = new HashMap<Integer, char[]>();
-    private HashMap<Key, char[]> CachedBlocks = new HashMap<Key, char[]>();
+    protected char[][] grid;
 
     public Board(){
         grid = new char[SudokuSolver.BOARD_SIZE][SudokuSolver.BOARD_SIZE];
@@ -23,16 +17,16 @@ public class Board {
      * @param k element to check
      * @return if possible to place or not
      */
-    public Set<Character> getPossibleSymbols(int x, int y){
+    public Set<Character> nocache_getPossibleSymbols(int x, int y){
         Set<Character> found = new HashSet<>();
         if(grid[x][y] != '.'){
             return found;
         }
-        for(char c : get_cached_horizontal(y))
+        for(char c : get_horizontal(y))
             found.add(c);
-        for(char c : get_cached_vertical(x))
+        for(char c : get_vertical(x))
             found.add(c);
-        for(char c : get_cached_block(x,y))
+        for(char c : get_block(x,y))
             found.add(c);
         found.remove('.');
         Set<Character> symbols = new HashSet<>();
@@ -42,110 +36,16 @@ public class Board {
         return symbols;
     }
 
-    public void setGrid(int x, int y, char val){
+    public void nocache_setGrid(int x, int y, char val){
         grid[x][y] = val;
-        upToDateCache = false;
-        updateAllCaches(x, y);
     }
 
-    public void setGrid(char[][] other){
+    public void nocache_setGrid(char[][] other){
         grid = other;
-        upToDateCache = false;
-        regenerateAllCache();
     }
 
     public char getGrid(int x, int y){
         return grid[x][y];
-    }
-
-    private void updateCachedHorizontal(){
-        CachedHorizontal.clear();
-        for (int i = 0; i < SudokuSolver.BOARD_SIZE; i++) {
-            CachedHorizontal.put((Integer) i, get_horizontal(i));
-        }
-    }
-
-    private void updateCachedVertical(){
-        CachedVertical.clear();
-        for (int i = 0; i < SudokuSolver.BOARD_SIZE; i++) {
-            CachedVertical.put((Integer) i, get_vertical(i));
-        }
-    }
-
-    private void updateCachedBlock(){
-        CachedBlocks.clear();
-        for(int i = 0; i < SudokuSolver.BOARD_SIZE; i++){
-            for(int j = 0; j < SudokuSolver.BOARD_SIZE; j++){
-                CachedBlocks.put(new Key(j,i), get_block(j, i));
-            }
-        }
-    }
-
-    private char[] updateCachedHorizontal(int y){
-        char[] r = get_horizontal(y);
-        CachedHorizontal.put((Integer) y, r);
-        return r;
-    }
-
-    private char[] updateCachedVertical(int x){
-        char[] r = get_vertical(x);
-        CachedVertical.put((Integer) x, r);
-        return r;
-    }
-
-    private char[] updateCachedBlock(int x, int y){
-        char[] r = get_block(x, y);
-        CachedBlocks.put(new Key(x,y), r);
-        return r;
-    }
-
-    public void regenerateAllCache(){
-        if(!upToDateCache){
-            updateCachedHorizontal();
-            updateCachedVertical();
-            updateCachedBlock();
-            upToDateCache = true;
-        } else {
-            System.out.println("Already up to date!");
-        }
-    }
-
-    public void updateAllCaches(int x, int y){
-        if(!upToDateCache){
-            updateCachedHorizontal(y);
-            updateCachedVertical(x);
-            updateCachedBlock(x, y);
-            upToDateCache = true;
-        } else {
-            System.out.println("Already up to date!");
-        }
-    }
-
-    public char[] get_cached_vertical(int x){
-        if(upToDateCache){
-            return CachedVertical.get((Integer) x);
-        } else{
-            System.out.println("(V) Falling back to real time calculation and updating.");
-            return updateCachedVertical(x);
-        }
-    }
-
-    public char[] get_cached_horizontal(int y){
-        if(upToDateCache){
-            return CachedHorizontal.get((Integer) y);
-        } else{
-            System.out.println("(H) Falling back to real time calculation and updating.");
-            return updateCachedHorizontal(y);
-        }
-    }
-
-    public char[] get_cached_block(int x, int y){
-        if(upToDateCache){
-            return CachedBlocks.get(new Key(x, y));
-        } else{
-            System.out.println("(B) Falling back to real time calculation and updating.");
-            return updateCachedBlock(x, y);
-        }
     }
 
     /**
@@ -249,30 +149,5 @@ public class Board {
             }
         }
         return n;
-    }
-}
-
-class Key{
-    private final int x;
-    private final int y;
-
-    public Key(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Key)) return false;
-        Key key = (Key) o;
-        return x == key.x && y == key.y;
-    }
-
-    @Override
-    public int hashCode() {
-        return (x << 16) + y;
-        /*int result = x;
-        result = 31 * result + y;
-        return result;*/
     }
 }

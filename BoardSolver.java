@@ -7,19 +7,19 @@ import java.util.*;
  */
 class BoardSolver {
 
-    private List<Board> boardStates = new ArrayList<>();
-    private List<Board> finishedBoards = new ArrayList<>();
+    private List<CachedBoard> boardStates = new ArrayList<>();
+    private List<CachedBoard> finishedBoards = new ArrayList<>();
     
     public BoardSolver(){
         // empty for now
     }
 
-    public void addBoardState(Board b){
+    public void addBoardState(CachedBoard b){
         boardStates.add(b);
     }
 
 
-    public List<Moves> calcPossibles(Board b){
+    public List<Moves> calcPossibles(CachedBoard b){
         ArrayList<Moves> possibleMoves = new ArrayList<>();
         for(int i = 0; i < SudokuSolver.BOARD_SIZE; i++){
             for(int j = 0; j < SudokuSolver.BOARD_SIZE; j++){
@@ -36,7 +36,7 @@ class BoardSolver {
     /**
      * Solve method, solved boards grid variable.
      */
-    public void stepSolutions(Board b){
+    public void stepSolutions(CachedBoard b){
         List<Moves> possibleMoves = calcPossibles(b);
         Collections.sort(possibleMoves);
         
@@ -65,11 +65,12 @@ class BoardSolver {
                     b.setGrid(bestMove.x, bestMove.y, sol);
                     first = false;
                 } else {
-                    Board childBoard = new Board();
+                    CachedBoard childBoard = new CachedBoard();
                 
-                    childBoard.setGrid(b.copyGrid());
-
-                    b.setGrid(bestMove.x, bestMove.y, sol);
+                    childBoard.nocache_setGrid(b.copyGrid());
+                    childBoard.setHCache(b.copyHCache());
+                    childBoard.setVCache(b.copyVCache());
+                    childBoard.setGrid(bestMove.x, bestMove.y, sol);
                     addBoardState(childBoard);
                 }
             }
@@ -91,7 +92,7 @@ class BoardSolver {
         System.out.println("No more board states to solve. Finished boards: "+finishedBoards.size());
 
         int t = 0;
-        for (Board b : finishedBoards) {
+        for (CachedBoard b : finishedBoards) {
             if(b.HowManyLeft() < 1){
                 System.out.println("Solved board: \n");
                 b.print();
@@ -107,8 +108,8 @@ class BoardSolver {
      * Converter function from oneliner text to grid object
      * @param text one liner text ex: "3..5.1....6.31..7.1... ..."
      */
-    public Board textToBoard(String text){
-        Board b = new Board();
+    public CachedBoard textToBoard(String text){
+        CachedBoard b = new CachedBoard();
         char[] text_symbols = text.toCharArray();
 
         for(int i = 0; i < SudokuSolver.BOARD_SIZE; i++){
