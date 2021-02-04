@@ -1,2 +1,2 @@
-# Sudoku Solver in java
+# Sudoku Solver in Java
 No recursion
