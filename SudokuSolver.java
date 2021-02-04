@@ -38,7 +38,7 @@ public class SudokuSolver {
         Game.solve();
         long elapsedTimeMillis = System.currentTimeMillis()-start;
         float elapsedTimeSec = elapsedTimeMillis/1000F;
-        System.out.println("Took: "+elapsedTimeSec+" s ("+elapsedTimeMillis+" ms)"); 
+        System.out.println("Took: "+elapsedTimeSec+" s ("+elapsedTimeMillis+" ms)");
         
     }
 }

@@ -1,7 +1,7 @@
 public class BenchmarkBoard extends CachedBoard{
     public void benchmark(){
         BoardSolver g = new BoardSolver();
-        final int amount = 100000;
+        final int amount = 1000000;
         setGrid(g.textToBoard("........1....2..9.6....4......7..2....9.1..36.3...2..452.93....9..5...6...4..6.1.").copyGrid());
         for (int i = 0; i < amount; i++) {
             benchmarking_function1(i);
@@ -24,9 +24,9 @@ public class BenchmarkBoard extends CachedBoard{
     }
 
     private void benchmarking_function1(int i){
-        nocache_getPossibleSymbols(i%9,(i+23)%9);
+        copyHCache();
     }
     private void benchmarking_function2(int i){
-        getPossibleSymbols(i%9,(i+23)%9);
+        // ...
     }
 }

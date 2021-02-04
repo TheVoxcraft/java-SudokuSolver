@@ -23,7 +23,7 @@ class BoardSolver {
         ArrayList<Moves> possibleMoves = new ArrayList<>();
         for(int i = 0; i < SudokuSolver.BOARD_SIZE; i++){
             for(int j = 0; j < SudokuSolver.BOARD_SIZE; j++){
-                Set<Character> possibleSymbols = b.getPossibleSymbols(j, i);
+                Set<Character> possibleSymbols = b.nocache_getPossibleSymbols(j, i);
                 if(!possibleSymbols.isEmpty()){
                     possibleMoves.add(new Moves(j, i, possibleSymbols));
                 }
@@ -56,7 +56,7 @@ class BoardSolver {
         if(bestMove.length() == 1){
             char sol = (char) bestMove.symbols.iterator().next();
             //System.out.println("("+bestMove.x+","+bestMove.y+") symbol: "+sol);
-            b.setGrid(bestMove.x, bestMove.y, sol);
+            b.nocache_setGrid(bestMove.x, bestMove.y, sol);
         } else {
             boolean first = true;
             for (Character possibleMoveOnSlot : bestMove.symbols) {
@@ -68,9 +68,9 @@ class BoardSolver {
                     CachedBoard childBoard = new CachedBoard();
                 
                     childBoard.nocache_setGrid(b.copyGrid());
-                    childBoard.setHCache(b.copyHCache());
-                    childBoard.setVCache(b.copyVCache());
-                    childBoard.setGrid(bestMove.x, bestMove.y, sol);
+                    //childBoard.setHCache(b.copyHCache());
+                    //childBoard.setVCache(b.copyVCache());
+                    childBoard.nocache_setGrid(bestMove.x, bestMove.y, sol);
                     addBoardState(childBoard);
                 }
             }
@@ -114,7 +114,8 @@ class BoardSolver {
 
         for(int i = 0; i < SudokuSolver.BOARD_SIZE; i++){
             for(int j = 0; j < SudokuSolver.BOARD_SIZE; j++){
-                b.setGrid(j, i, text_symbols[j + (i * SudokuSolver.BOARD_SIZE)]);
+                b.nocache_setGrid(j, i, text_symbols[j + (i * SudokuSolver.BOARD_SIZE)]);
+                //b.regenerateAllCache();
             }
         }
 
